@@ -1,0 +1,18 @@
+{
+    "editor.tokenColorCustomizations": {
+      "textMateRules": [
+          {
+              "scope": "language.boolean.mal",
+              "settings": {
+                  "foreground": "#5ad0f4"
+              }
+          },
+          {
+            "scope": "language.comments.mal",
+            "settings": {
+                "foreground": "#08b87e"
+            }
+        },
+      ]
+  }
+}
