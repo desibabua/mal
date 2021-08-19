@@ -16,7 +16,8 @@ const rep = (str) => PRINT(EVAL(READ(str)));
 const main = function() {
   rl.question('user> ', (str) => {
     try {
-      console.log(rep(str));
+      const result = rep(str);
+      if(result != null) console.log(result);
     } catch (e) {
       console.log(e.message);
     } finally {
