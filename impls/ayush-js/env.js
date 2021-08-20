@@ -31,6 +31,18 @@ class Env {
     if(env === null) throw new Error(`'${key.value}' not found.`);
     return env.data.get(key.value);
   }
+
+  static create(outer = null, binds, exprs) {
+    const env = new Env(outer);
+
+    if(binds.length !== exprs.length) throw new Error('odd number of arguments');
+
+    binds.forEach((key, index) => {
+      env.set(key, exprs[index]);
+    });
+
+    return env;
+  }
 }
 
 module.exports = Env;
