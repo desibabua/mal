@@ -70,27 +70,7 @@ const read_seq = (reader, closingSymbol) => {
 
 const read_list = (reader) => new List(read_seq(reader, ')'));
 const read_vector = (reader) => new Vector(read_seq(reader, ']'));
-
-const read_hashmap = (reader) => {
-  const ast = read_seq(reader, '}');
-  const hashmap = new Map();
-
-  if(ast.length % 2 != 0) {
-    throw new Error('Odd number of hashmap arguments');
-  }
-
-  for (let i = 0; i < ast.length; i+=2) {
-    const key = ast[i];
-
-    if(!(key instanceof Str || key instanceof Keyword)) {
-      throw new Error('hashmap key is not a string');
-    }
-    
-    hashmap.set(ast[i], ast[i+1]);
-  }
-
-  return new Hashmap(hashmap);
-}
+const read_hashmap = (reader) => Hashmap.generate(read_seq(reader, '}'));
 
 const read_form = (reader) => {
   const token = reader.peek();
