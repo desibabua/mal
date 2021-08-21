@@ -94,6 +94,7 @@ const READ = (str) => read_str(str);
 const PRINT = (str) => pr_str(str);
 
 const rep = (str, env) => PRINT(EVAL(READ(str), env));
+rep('(def! not (fn* (a) (if a false true)))', env);
 
 const main = function() {
   rl.question('user> ', (str) => {
