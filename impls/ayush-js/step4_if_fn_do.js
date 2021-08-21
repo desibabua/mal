@@ -1,4 +1,5 @@
 const readline = require('readline');
+const generateCoreEnv = require('./core');
 const Env = require('./env');
 const { read_str } = require('./reader');
 const { pr_str, MalSymbol, List, Vector, Hashmap, nil } = require('./types');
@@ -8,21 +9,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const env = new Env();
-
-env.set(new MalSymbol('='), (a,b) => a === b);
-env.set(new MalSymbol('+'), (...args) => args.reduce((a,b) => a + b, 0));
-env.set(new MalSymbol('*'), (...args) => args.reduce((a,b) => a * b, 1));
-
-env.set(new MalSymbol('-'), (...args) => {
-  if(args.length === 1) args.unshift(0);
-  return args.reduce((a,b) => a - b)
-});
-
-env.set(new MalSymbol('/'), (...args) => {
-  if(args.length === 1) args.unshift(1);
-  return args.reduce((a,b) => a / b)
-});
+const env = generateCoreEnv();
 
 const eval_ast = (ast, env) => {
 
@@ -75,7 +62,10 @@ const EVAL = (ast, env) => {
   if(first === 'if') {
     if(ast.ast.length < 3) throw new Error('wrong number of arguments to if');
     const condition = EVAL(ast.ast[1], env);
-    if(condition === nil || condition === false) return EVAL(ast.ast[3], env);
+    if(condition === nil || condition === false){
+      const result = EVAL(ast.ast[3], env);
+      return result === nil || result === undefined ? nil : result;
+    } 
     return EVAL(ast.ast[2], env);
   }
 
