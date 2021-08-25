@@ -180,6 +180,19 @@ class Hashmap extends MalValue {
   }
 }
 
+class Fn extends MalValue {
+  constructor(env, binds, fnBody) {
+    super();
+    this.env = env;
+    this.binds = binds;
+    this.fnBody = fnBody;
+  }
+
+  to_str(printReadably = false) {
+    return "#<function>";
+  }
+}
+
 module.exports = {
   pr_str,
   nil,
@@ -190,4 +203,5 @@ module.exports = {
   MalSymbol,
   Keyword,
   Hashmap,
+  Fn
 };
