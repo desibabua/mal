@@ -1,5 +1,8 @@
+const { readFileSync } = require("fs");
+
 const Env = require("./env");
-const { MalSymbol, pr_str, nil, List, MalValue } = require("./types");
+const { read_str } = require("./reader");
+const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom } = require("./types");
 
 const equal = (a, b) => (a instanceof MalValue ? a.isEqual(b) : a === b);
 const lessThan = (a, b) => a < b;
@@ -34,6 +37,40 @@ const countList = (arg1, ...others) => {
 const isList = (arg1, ...others) => arg1 instanceof List;
 const isEmpty = (arg1, ...others) => arg1 instanceof List && arg1.isEmpty();
 
+const prStr = (...strArgs) => {
+  return new Str(strArgs.map((str) => pr_str(str, true)).join(" "));
+};
+
+const str = (...strArgs) => {
+  return new Str(strArgs.map((str) => pr_str(str, false)).join(""));
+}
+
+const prn = (...strArgs) => {
+  console.log(strArgs.map((str) => pr_str(str, true)).join(" "));
+  return nil;
+};
+
+const println = (...strArgs) => {
+  console.log(strArgs.map((str) => pr_str(str, false)).join(" "));
+  return nil;
+};
+
+const readString = (str) => read_str(str.value);
+const slurpFile = (str) => new Str(readFileSync(str.value,'utf-8'));
+
+const atom = (value) => new Atom(value);
+const isAtom = (value) => value instanceof Atom;
+const dereferenceAtom = (value) => {
+  if(!(value instanceof Atom)) throw new Error(`${value} is not a atom`);
+  return value.MalValue;
+}
+
+const resetAtom = (atom, value) => {
+  if (!(atom instanceof Atom)) throw new Error(`${atom} is not a atom`);
+  atom.MalValue = value;
+  return atom.MalValue;
+};
+
 const nameSpace = {
   "=": equal,
   "<": lessThan,
@@ -52,6 +89,18 @@ const nameSpace = {
 
   "list?": isList,
   "empty?": isEmpty,
+  "pr-str": prStr,
+  str: str,
+  prn: prn,
+  println: println,
+
+  "read-string": readString,
+  slurp: slurpFile,
+
+  atom : atom,
+  "atom?": isAtom,
+  "deref": dereferenceAtom,
+  "reset!": resetAtom,
 };
 
 const generateCoreEnv = () => {
@@ -62,4 +111,8 @@ const generateCoreEnv = () => {
   return env;
 };
 
-module.exports = generateCoreEnv;
+const setInEnv = (env, key, value) => {
+  env.set(new MalSymbol(key), value);
+};
+
+module.exports = { generateCoreEnv, setInEnv };

@@ -17,6 +17,7 @@ class Reader {
       this.position++;
     }
 
+    console.log(token);
     return token;
   }
 }
@@ -68,6 +69,12 @@ const read_seq = (reader, closingSymbol) => {
   return ast;
 }
 
+const dereferenceMacro = (reader) => {
+  reader.next();
+  return new List([new MalSymbol("deref"), new MalSymbol(reader.next())]);
+}
+
+
 const read_list = (reader) => new List(read_seq(reader, ')'));
 const read_vector = (reader) => new Vector(read_seq(reader, ']'));
 const read_hashmap = (reader) => Hashmap.generate(read_seq(reader, '}'));
@@ -79,6 +86,7 @@ const read_form = (reader) => {
     case '(': return read_list(reader);
     case '[': return read_vector(reader);
     case '{': return read_hashmap(reader);
+    case '@': return dereferenceMacro(reader);
     case ';': return null;
     case ')': throw new Error('unbalanced  (');
     case ']': throw new Error('unbalanced  ]');

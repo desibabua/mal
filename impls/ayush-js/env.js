@@ -32,7 +32,7 @@ class Env {
     return env.data.get(key.value);
   }
 
-  static create(outer = null, binds, exprs) {
+  static create(outer = null, binds = [], exprs = []) {
     const env = new Env(outer);
 
     for (let i = 0; i < binds.length; i++) {

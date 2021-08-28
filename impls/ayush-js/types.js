@@ -94,7 +94,7 @@ class Str extends MalValue {
         '"'
       );
     }
-    return '"' + this.value + '"';
+    return this.value;
   }
 
   isEqual(str) {
@@ -126,7 +126,8 @@ class Keyword extends MalValue {
   }
 
   to_str(printReadably = false) {
-    return ":" + this.value;
+    if(printReadably) return ":" + this.value;
+    return this.value;
   }
 
   isEqual(symbol) {
@@ -149,7 +150,7 @@ class Hashmap extends MalValue {
     let str = [];
 
     for (let [key, value] of this.value.entries()) {
-      str.push(pr_str(key) + " " + pr_str(value));
+      str.push(pr_str(key, printReadably) + " " + pr_str(value, printReadably));
     }
 
     return "{" + str.join(" ") + "}";
@@ -181,7 +182,7 @@ class Hashmap extends MalValue {
 }
 
 class Fn extends MalValue {
-  constructor(env, binds, fnBody) {
+  constructor(env, binds = [], fnBody) {
     super();
     this.env = env;
     this.binds = binds;
@@ -190,6 +191,17 @@ class Fn extends MalValue {
 
   to_str(printReadably = false) {
     return "#<function>";
+  }
+}
+
+class Atom extends MalValue {
+  constructor(MalValue) {
+    super();
+    this.MalValue = MalValue;
+  }
+
+  to_str(printReadably = false) {
+    return "(atom " + pr_str(this.MalValue, printReadably) + ")";
   }
 }
 
@@ -203,5 +215,6 @@ module.exports = {
   MalSymbol,
   Keyword,
   Hashmap,
-  Fn
+  Fn,
+  Atom,
 };
