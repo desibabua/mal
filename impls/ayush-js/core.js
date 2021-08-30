@@ -101,6 +101,8 @@ const nameSpace = {
   "atom?": isAtom,
   "deref": dereferenceAtom,
   "reset!": resetAtom,
+
+  "*ARGV*": new List([]),
 };
 
 const generateCoreEnv = () => {

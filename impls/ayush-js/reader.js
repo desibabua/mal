@@ -17,7 +17,6 @@ class Reader {
       this.position++;
     }
 
-    console.log(token);
     return token;
   }
 }

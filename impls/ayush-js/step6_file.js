@@ -125,11 +125,24 @@ const rep = (str, env) => PRINT(EVAL(READ(str), env));
 rep("(def! not (fn* (a) (if a false true)))", env);
 rep('(def! load-file (fn* (fileName) (eval (read-string (str "(do " (slurp fileName) "\nnil)")))))', env);
 
+const printResult = (result) => {
+  if (result != null) console.log(result);
+}
+
+const runFile = function() {
+  const [fileName, ...args] = process.argv.slice(2);
+  if(fileName) {
+    setInEnv(env, "*ARGV*", new List(args));
+    rep(`(load-file "${fileName}")`, env);
+    process.exit(0);
+  }
+}
+
 const main = function () {
+  runFile();
   rl.question("user> ", (str) => {
     try {
-      const result = rep(str, env);
-      if (result != null) console.log(result);
+      printResult(rep(str, env));
     } catch (e) {
       console.log(e);
     } finally {
