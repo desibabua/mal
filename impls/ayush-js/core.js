@@ -2,7 +2,7 @@ const { readFileSync } = require("fs");
 
 const Env = require("./env");
 const { read_str } = require("./reader");
-const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom } = require("./types");
+const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom, Vector } = require("./types");
 
 const equal = (a, b) => (a instanceof MalValue ? a.isEqual(b) : a === b);
 const lessThan = (a, b) => a < b;
@@ -103,6 +103,11 @@ const nameSpace = {
   "reset!": resetAtom,
 
   "*ARGV*": new List([]),
+
+  "cons" : (value, seq) => seq.cons(value),
+  "concat" : (...lists) => lists.reduce((l1,l2) => l1.concat(l2), new List([])),
+
+  "vec" : (list) => new Vector([...list.ast]),
 };
 
 const generateCoreEnv = () => {

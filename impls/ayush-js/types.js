@@ -25,16 +25,7 @@ class NilValue extends MalValue {
 
 const nil = new NilValue();
 
-class List extends MalValue {
-  constructor(ast) {
-    super();
-    this.ast = ast;
-  }
-
-  to_str(printReadably = false) {
-    return "(" + this.ast.map((x) => pr_str(x, printReadably)).join(" ") + ")";
-  }
-
+class Seq extends MalValue {
   isEmpty() {
     return this.ast.length == 0;
   }
@@ -43,19 +34,42 @@ class List extends MalValue {
     return this.ast.length;
   }
 
-  isEqual(list) {
-    if(!(list instanceof List)) return false;
-    if(list.count() !== this.count()) return false;
+  isEqual(seq) {
+    if (!(seq instanceof Seq)) return false;
+    if (seq.count() !== this.count()) return false;
 
     for (let i = 0; i < this.count; i++) {
-      if(list.ast[i] !== this.ast[i]) return false;
+      if (seq.ast[i] !== this.seq[i]) return false;
     }
 
     return true;
   }
+
+  cons(value) {
+    return new List([value, ...this.ast]);
+  }
+
+  concat(seq) {
+    return new List([...this.ast, ...seq.ast]);
+  }
+
+  beginsWith(symbol) {
+    return !this.isEmpty() && this.ast[0].value === symbol;
+  }
 }
 
-class Vector extends MalValue {
+class List extends Seq {
+  constructor(ast) {
+    super();
+    this.ast = ast;
+  }
+
+  to_str(printReadably = false) {
+    return "(" + this.ast.map((x) => pr_str(x, printReadably)).join(" ") + ")";
+  }
+}
+
+class Vector extends Seq {
   constructor(ast) {
     super();
     this.ast = ast;
@@ -63,17 +77,6 @@ class Vector extends MalValue {
 
   to_str(printReadably = false) {
     return "[" + this.ast.map((x) => pr_str(x, printReadably)).join(" ") + "]";
-  }
-
-  isEqual(vector) {
-    if(!(vector instanceof Vector)) return false;
-    if(vector.ast.length !== this.ast.length) return false;
-
-    for (let i = 0; i < this.count; i++) {
-      if(vector.ast[i] !== this.ast[i]) return false;
-    }
-
-    return true;
   }
 }
 

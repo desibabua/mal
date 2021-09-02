@@ -68,10 +68,18 @@ const read_seq = (reader, closingSymbol) => {
   return ast;
 }
 
-const dereferenceMacro = (reader) => {
+const prependSymbol = (reader, key) => {
   reader.next();
-  return new List([new MalSymbol("deref"), new MalSymbol(reader.next())]);
+  const symbol = new MalSymbol(key);
+  const newAst = read_form(reader);
+  return new List([symbol, newAst]);
 }
+
+const read_deref = (reader) => prependSymbol(reader, "deref");
+const read_quote = (reader) => prependSymbol(reader, "quote");
+const read_quasiquote = (reader) => prependSymbol(reader, "quasiquote");
+const read_unquote = (reader) => prependSymbol(reader, "unquote");
+const read_splice_unquote = (reader) => prependSymbol(reader, "splice-unquote");
 
 
 const read_list = (reader) => new List(read_seq(reader, ')'));
@@ -81,11 +89,15 @@ const read_hashmap = (reader) => Hashmap.generate(read_seq(reader, '}'));
 const read_form = (reader) => {
   const token = reader.peek();
 
-  switch (token[0]) {
+  switch (token) {
     case '(': return read_list(reader);
     case '[': return read_vector(reader);
     case '{': return read_hashmap(reader);
-    case '@': return dereferenceMacro(reader);
+    case '@': return read_deref(reader);
+    case "'": return read_quote(reader);
+    case '`': return read_quasiquote(reader);
+    case '~': return read_unquote(reader);
+    case '~@': return read_splice_unquote(reader);
     case ';': return null;
     case ')': throw new Error('unbalanced  (');
     case ']': throw new Error('unbalanced  ]');
