@@ -62,13 +62,12 @@ const atom = (value) => new Atom(value);
 const isAtom = (value) => value instanceof Atom;
 const dereferenceAtom = (value) => {
   if(!(value instanceof Atom)) throw new Error(`${value} is not a atom`);
-  return value.MalValue;
+  return value.dereference();
 }
 
 const resetAtom = (atom, value) => {
   if (!(atom instanceof Atom)) throw new Error(`${atom} is not a atom`);
-  atom.MalValue = value;
-  return atom.MalValue;
+  return atom.set(value);
 };
 
 const nameSpace = {

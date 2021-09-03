@@ -206,6 +206,15 @@ class Atom extends MalValue {
   to_str(printReadably = false) {
     return "(atom " + pr_str(this.MalValue, printReadably) + ")";
   }
+
+  dereference() {
+    return this.MalValue;
+  }
+
+  set(value) {
+    this.MalValue = value;
+    return this.MalValue;
+  }
 }
 
 module.exports = {
