@@ -34,6 +34,23 @@ class Seq extends MalValue {
     return this.ast.length;
   }
 
+  getNth(index) {
+    if (index >= this.count()) {
+      throw new Error("index out of bound");
+    }
+    return this.ast[index];
+  }
+
+  getFirst() {
+    if (this.isEmpty()) return nil;
+    return this.ast[0];
+  }
+
+  rest() {
+    if (this.isEmpty()) return new List([]);
+    return new List(this.ast.slice(1));
+  }
+
   isEqual(seq) {
     if (!(seq instanceof Seq)) return false;
     if (seq.count() !== this.count()) return false;
@@ -59,7 +76,7 @@ class Seq extends MalValue {
 }
 
 class List extends Seq {
-  constructor(ast) {
+  constructor(ast = []) {
     super();
     this.ast = ast;
   }
@@ -70,7 +87,7 @@ class List extends Seq {
 }
 
 class Vector extends Seq {
-  constructor(ast) {
+  constructor(ast = []) {
     super();
     this.ast = ast;
   }
@@ -185,15 +202,21 @@ class Hashmap extends MalValue {
 }
 
 class Fn extends MalValue {
-  constructor(env, binds = [], fnBody) {
+  constructor(env, binds = [], fnBody, fn = () => {}, isMacro = false) {
     super();
     this.env = env;
     this.binds = binds;
     this.fnBody = fnBody;
+    this.fn = fn;
+    this.isMacro = isMacro;
   }
 
   to_str(printReadably = false) {
     return "#<function>";
+  }
+
+  apply(args) {
+    return this.fn.apply(null, args);
   }
 }
 
@@ -220,6 +243,7 @@ class Atom extends MalValue {
 module.exports = {
   pr_str,
   nil,
+  NilValue,
   MalValue,
   List,
   Vector,

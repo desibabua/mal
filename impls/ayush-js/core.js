@@ -2,7 +2,7 @@ const { readFileSync } = require("fs");
 
 const Env = require("./env");
 const { read_str } = require("./reader");
-const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom, Vector } = require("./types");
+const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom, Vector, NilValue } = require("./types");
 
 const equal = (a, b) => (a instanceof MalValue ? a.isEqual(b) : a === b);
 const lessThan = (a, b) => a < b;
@@ -88,6 +88,10 @@ const nameSpace = {
 
   "list?": isList,
   "empty?": isEmpty,
+  nth: (seq, index) => seq.getNth(index),
+  first: (seq) => (seq instanceof NilValue ? nil : seq.getFirst()),
+  rest: (seq) => (seq instanceof NilValue ? new List([]) : seq.rest()),
+
   "pr-str": prStr,
   str: str,
   prn: prn,
@@ -96,17 +100,17 @@ const nameSpace = {
   "read-string": readString,
   slurp: slurpFile,
 
-  atom : atom,
+  atom: atom,
   "atom?": isAtom,
-  "deref": dereferenceAtom,
+  deref: dereferenceAtom,
   "reset!": resetAtom,
 
   "*ARGV*": new List([]),
 
-  "cons" : (value, seq) => seq.cons(value),
-  "concat" : (...lists) => lists.reduce((l1,l2) => l1.concat(l2), new List([])),
+  cons: (value, seq) => seq.cons(value),
+  concat: (...lists) => lists.reduce((l1, l2) => l1.concat(l2), new List([])),
 
-  "vec" : (list) => new Vector([...list.ast]),
+  vec: (list) => new Vector([...list.ast]),
 };
 
 const generateCoreEnv = () => {
