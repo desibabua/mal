@@ -1,5 +1,5 @@
 const pr_str = (value, printReadably = false) => {
-  if (value == null) return null;
+  if (value === null || value === undefined) return nil.to_str(printReadably);
   if (value instanceof MalValue) return value.to_str(printReadably);
   return value.toString();
 };
