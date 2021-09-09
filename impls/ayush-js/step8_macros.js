@@ -143,7 +143,7 @@ const EVAL = (ast, env) => {
     }
 
     if (first === "macroexpand") {
-      return macro_expand(ast.ast[1], env);
+      return macro_expand(EVAL(ast.ast[1], env), env);
     }
 
     if (first === "def!") {

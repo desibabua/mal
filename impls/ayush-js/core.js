@@ -2,7 +2,7 @@ const { readFileSync } = require("fs");
 
 const Env = require("./env");
 const { read_str } = require("./reader");
-const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom, Vector, NilValue } = require("./types");
+const { MalSymbol, pr_str, nil, List, MalValue, Str, Atom, Vector, NilValue, Seq } = require("./types");
 
 const equal = (a, b) => (a instanceof MalValue ? a.isEqual(b) : a === b);
 const lessThan = (a, b) => a < b;
@@ -35,7 +35,7 @@ const countList = (arg1, ...others) => {
 };
 
 const isList = (arg1, ...others) => arg1 instanceof List;
-const isEmpty = (arg1, ...others) => arg1 instanceof List && arg1.isEmpty();
+const isEmpty = (arg1, ...others) => arg1 instanceof Seq && arg1.isEmpty();
 
 const prStr = (...strArgs) => {
   return new Str(strArgs.map((str) => pr_str(str, true)).join(" "));
@@ -81,6 +81,8 @@ const nameSpace = {
   "-": sub,
   "*": mul,
   "/": divide,
+  "mod":(num1, num2) => num1 % num2,
+  "zero?" : (num) => num === 0,
 
   prn: print,
   list: createList,
@@ -108,6 +110,7 @@ const nameSpace = {
   "*ARGV*": new List([]),
 
   cons: (value, seq) => seq.cons(value),
+  push: (value, seq) => seq.push(value),
   concat: (...lists) => lists.reduce((l1, l2) => l1.concat(l2), new List([])),
 
   vec: (list) => new Vector([...list.ast]),

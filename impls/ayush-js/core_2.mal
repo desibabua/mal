@@ -2,6 +2,12 @@
   (fn* (a) (if a false true))
 )
 
+(def! truthy 
+  (fn* (a) (if a true false))
+)
+
+(def! falsy not)
+
 (defmacro! cond 
   (fn* (& xs) 
   (if (> (count xs) 0) 
@@ -14,3 +20,182 @@
     )
   )
 )
+
+;;1. reduce
+
+(defmacro! reduce
+  (fn* [pred initValue seq]
+    `(if (empty? ~seq) 
+        ~initValue
+        (reduce ~pred (~pred ~initValue (first ~seq)) (rest ~seq))
+    )
+  )
+)
+
+;;2. map(use reduce)
+
+(def! map 
+  (fn* [pred seq] 
+    (reduce 
+            (fn* [prev curr] 
+              (push (pred curr) prev)
+            )
+            '()
+            seq
+    )
+  )
+)
+
+;;3. filter(use reduce)
+
+(def! filter
+  (fn* [pred seq] 
+    (reduce 
+            (fn* [prev curr] 
+              (if (pred curr) 
+                (push curr prev)
+                prev
+              )
+            )
+            '()
+            seq
+    )
+  )
+)
+;;4. some?
+
+(def! some?
+  (fn* [pred seq]
+      (if (empty? seq) false
+        (if (truthy (pred (first seq))) 
+            true
+            (some? pred (rest seq))
+        )
+      )
+  )
+)
+
+;;5. every?
+
+(def! every?
+  (fn* [pred seq]
+      (if (empty? seq) true
+        (if (truthy (pred (first seq))) 
+          (every? pred (rest seq))
+          false
+        )
+      )
+  )
+)
+
+;;6. and (macro)
+
+(defmacro! and 
+  (fn* [& values]
+    (list 'if (= (count values) 1)
+        (first values)
+        (list 'if (first values)
+            (cons 'and (rest values))
+            (first values)
+        )
+    )
+  )
+)
+
+;;7. or (macro)
+
+(defmacro! or
+  (fn* [& values]
+    (list 'if (= (count values) 1)
+        (first values)
+        (list 'if (first values)
+          (first values)
+          (cons 'or (rest values))
+        )
+    )
+  )
+)
+
+
+;;8. condp (macro)
+
+(defmacro! condp
+    (fn* 
+      [pred expr & clauses]
+      (if (> (count clauses) 0)
+          (list 'if (list pred (first clauses) expr)
+                (if (> (count clauses) 1) (first (rest clauses)) (throw "odd number of forms to condp"))
+                (concat (list 'condp pred expr) (rest (rest clauses)))
+          )
+      )
+    )
+)
+
+
+;;(defn! is_sum_five [val1 val2] (= 5 (+ val2 val1)))
+;; (condp is_sum_five 10 2 :two 3 :three 4 :four)
+;; (macroexpand '(condp is_sum_five 10 2 :two 3 :three 4 :four))
+
+
+;;9. defn! (macro)
+
+(defmacro! defn! 
+    (fn* 
+      [fn_name, fn_args, fn_body] 
+      (list 'def! fn_name (list 'fn* fn_args fn_body))
+    )
+)
+
+
+;;10. -> and ->> (threading macros)
+
+(defmacro! ->>
+  (fn* [& func_calls]
+      (if (> (count func_calls) 0)
+          (if (= (count func_calls) 1) 
+            (first func_calls)
+            (concat (list '->> (push (first func_calls) (nth func_calls 1))) (rest (rest func_calls)))
+          )
+      )
+  )
+)
+
+(defmacro! ->
+  (fn* [& func_calls]
+      (if (> (count func_calls) 0)
+          (if (= (count func_calls) 1) 
+            (first func_calls)
+            (concat 
+              (list '-> 
+                  (cons 
+                    (first (nth func_calls 1))
+                    (cons 
+                      (first func_calls)
+                      (rest (nth func_calls 1))
+                    )
+                  )
+              ) 
+              (rest (rest func_calls))
+            )
+          )
+      )
+  )
+)
+
+;; (->> (+ 3 2))
+;; (macroexpand '(->> (+ 3 2)))
+;; (->> (+ 3 2) (+ 2))
+;; (macroexpand '(->> (+ 3 2) (+ 2)))
+
+;; (->> (+ 3 2) (+ 2) (- 5))
+;; (macroexpand '(->> (+ 3 2) (+ 2) (- 5)))
+
+;; (-> (+ 3 2))
+;; (macroexpand '(-> (+ 3 2)))
+;; (-> (+ 3 2) (+ 2))
+;; (macroexpand '(-> (+ 3 2) (+ 2)))
+
+;; (-> (+ 3 2) (+ 2) (- 5))
+;; (macroexpand '(-> (+ 3 2) (+ 2) (- 5)))
+
+;;All are effectively 1 liners or 2 liners except number 10.

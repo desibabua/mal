@@ -66,6 +66,10 @@ class Seq extends MalValue {
     return new List([value, ...this.ast]);
   }
 
+  push(value) {
+    return new List([...this.ast, value]);
+  }
+
   concat(seq) {
     return new List([...this.ast, ...seq.ast]);
   }
@@ -243,6 +247,7 @@ class Atom extends MalValue {
 module.exports = {
   pr_str,
   nil,
+  Seq,
   NilValue,
   MalValue,
   List,
